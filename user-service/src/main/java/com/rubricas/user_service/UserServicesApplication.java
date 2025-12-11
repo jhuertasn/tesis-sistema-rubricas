@@ -1,4 +1,4 @@
-package com.rubricas.user_services;
+package com.rubricas.user_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

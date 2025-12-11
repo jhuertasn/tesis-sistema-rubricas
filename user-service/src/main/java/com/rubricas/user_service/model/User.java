@@ -1,8 +1,7 @@
-package com.rubricas.user_services.model;
+package com.rubricas.user_service.model;
+
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,11 +19,15 @@ public class User {
 
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    private Role rol;
+    private String password;
+
+    private String rol;
+
+    private String picture;
 
     // --- Getters y Setters ---
-    // (Lombok los generaría automáticamente, pero por ahora los ponemos manualmente para aprender)
+    // (Lombok los generaría automáticamente, pero por ahora los ponemos manualmente
+    // para aprender)
 
     public Long getId() {
         return id;
@@ -50,12 +53,28 @@ public class User {
         this.email = email;
     }
 
-    public Role getRol() {
+    public String getRol() {
         return rol;
     }
 
-    public void setRol(Role rol) {
+    public void setRol(String rol) {
         this.rol = rol;
     }
-    
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
 }
