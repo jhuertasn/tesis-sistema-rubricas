@@ -1,0 +1,20 @@
+# IDEs and OS folders
+.idea/
+.vscode/
+.DS_Store
+
+# Java specific files
+*.log
+*.class
+
+# Maven build directory
+target/
+pom.xml.tag
+pom.xml.versionsBackup
+*.jar
+
+# Node specific files (Frontend)
+/node_modules
+/dist
+npm-debug.log
+yarn-error.log

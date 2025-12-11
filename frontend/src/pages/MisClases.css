@@ -1,0 +1,381 @@
+/* src/pages/MisClases.css */
+
+/* --- ARREGLO 1: Reseteo del fondo --- */
+/* Le decimos al body que en esta vista, el fondo es gris claro, no morado */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+  /* Usamos un degradado similar al de tu Figma */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%; 
+  background-color: #f4f7f6;
+}
+
+/* --- BARRA LATERAL (Sin cambios) --- */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+.sidebar-header .logo { font-size: 1.5rem; font-weight: 700; color: #333; }
+.user-profile { display: flex; align-items: center; margin-top: 2rem; margin-bottom: 2rem; }
+.user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: #5D5FEF; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 0.75rem; }
+.user-info { display: flex; flex-direction: column; }
+.user-name { font-weight: 600; }
+.user-role { font-size: 0.85rem; color: #777; }
+.nav-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+.nav-item { padding: 0.85rem 0.5rem; font-size: 1rem; color: #555; border-radius: 6px; cursor: pointer; margin-bottom: 0.5rem; }
+.nav-item.active, .nav-item:hover { background-color: #f0f0f8; color: #5D5FEF; font-weight: 600; }
+.sidebar-footer { border-top: 1px solid #e0e0e0; padding-top: 1rem; }
+.logout-button { background: none; border: none; color: #d9534f; cursor: pointer; font-size: 1rem; width: 100%; text-align: left; }
+
+/* --- CONTENIDO PRINCIPAL (Sin cambios) --- */
+.main-content {
+  flex-grow: 1;
+  padding: 2rem 3rem;
+  box-sizing: border-box;
+  width: 100%; /* Asegura que ocupe el espacio */
+}
+.main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.main-content h2 { font-size: 2rem; font-weight: 700; margin: 0; }
+.button-primary { background-color: #5D5FEF; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+.button-secondary { background-color: rgba(255,255,255, 0.2); color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+
+/* ... (Barra de Unirse a Clase) ... */
+.join-class-bar { background-color: #00C49A; color: white; padding: 1.5rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; margin-bottom: 2rem; }
+.join-class-content { display: flex; flex-direction: column; }
+.join-class-actions { display: flex; gap: 0.75rem; }
+.join-class-actions input { padding: 0.6rem 1rem; border: none; border-radius: 6px; font-size: 0.95rem; }
+
+/* --- ARREGLO 2: La Grilla de Clases Responsive --- */
+.class-list {
+  display: grid;
+  /* Esta es la línea mágica:
+    - grid-template-columns: Le dice que es una grilla.
+    - repeat(auto-fill, ...): Le dice que llene el espacio automáticamente.
+    - minmax(280px, 1fr): Le dice que cada tarjeta debe tener un mínimo de 280px, 
+      pero si hay espacio de sobra, que se estire (1fr).
+  */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem; /* Espacio entre las tarjetas */
+}
+/* --- FIN DEL ARREGLO 2 --- */
+
+.class-card { 
+background-color: white; 
+  border: 1px solid #e2e8f0; /* Borde más sutil */
+  border-radius: 16px;       /* Bordes más redondos */
+  padding: 1.5rem; 
+  box-shadow: 0 2px 4px rgba(0,0,0, 0.02); 
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Animación suave */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Una pequeña línea decorativa arriba de la tarjeta */
+.class-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #5D5FEF, #00C49A);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+
+.class-card:hover {
+cursor: pointer;
+  transform: translateY(-5px); /* Se levanta un poco */
+  box-shadow: 0 12px 20px rgba(93, 95, 239, 0.15); /* Sombra morada suave */
+  border-color: #5D5FEF;
+}
+
+.class-card:hover::before {
+  opacity: 1;
+}
+
+.class-card h3 { 
+margin-top: 0.5rem; 
+  color: #1a202c;
+  font-size: 1.1rem;
+}
+.class-card span { display: block; color: #666; font-size: 0.9rem; }
+.class-card .rubric-count { margin-top: 1rem; color: #5D5FEF; font-weight: 600; }
+
+/* ... (Botones de Editar/Eliminar) ... */
+.class-card-actions { display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid #f0f0f0; padding-top: 1rem; }
+.class-card-actions button { padding: 0.4rem 0.8rem; font-size: 0.85rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1px solid #ddd; }
+.button-edit { background-color: #f0f0f8; color: #5D5FEF; }
+.button-delete { background-color: #fcebeb; color: #d9534f; border-color: #f7cccc; }
+
+
+/* --- ESTILOS DEL CUESTIONARIO (EvaluacionForm) --- */
+
+.question-card {
+  margin-bottom: 2rem;
+  padding: 2rem;
+  border-left: 5px solid #5D5FEF; /* Borde morado elegante a la izquierda */
+}
+
+.question-title {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.question-number {
+  color: #5D5FEF;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.quiz-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quiz-option:hover {
+  background-color: #f9f9ff;
+  border-color: #d0d0ff;
+}
+
+.quiz-option.selected {
+  background-color: #eef0ff;
+  border-color: #5D5FEF;
+  font-weight: 500;
+}
+
+.radio-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+.quiz-option input[type="radio"] {
+  margin-right: 8px;
+  accent-color: #5D5FEF;
+  transform: scale(1.2);
+}
+
+.option-letter {
+  font-weight: bold;
+  color: #666;
+  min-width: 20px;
+}
+
+.large-button {
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+}
+
+.quiz-actions {
+  text-align: right;
+  padding-bottom: 3rem;
+}
+
+/* --- EMPTY STATE (Estado Vacío) --- */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: white;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+  color: #718096;
+  margin-top: 2rem;
+}
+
+.empty-icon-container {
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.empty-state h3 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.empty-state p {
+  font-size: 0.95rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* --- MEJORA DEL AVATAR --- */
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  /* --- AGREGA ESTAS LÍNEAS --- */
+  min-width: 48px; /* Evita que se encoja */
+  min-height: 48px; /* Evita que se aplaste */
+  flex-shrink: 0;   /* Evita que el flexbox lo deforme */
+  /* --------------------------- */
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  box-shadow: 0 4px 6px rgba(93, 95, 239, 0.3);
+  border: 2px solid white;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 700;
+  color: #2d3748;
+  font-size: 0.95rem;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+
+/* --- ESTILOS PARA ESTADÍSTICAS --- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #eee;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-info h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.stat-info span {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+/* --- TABLA ESTILIZADA --- */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  overflow: hidden; /* Para bordes redondos */
+  border: 1px solid #eee;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.styled-table thead tr {
+  background-color: #f8f9fa;
+  text-align: left;
+}
+
+.styled-table th, 
+.styled-table td {
+  padding: 1rem 1.5rem;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #fcfcfc;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: none;
+}
+
+/* --- BADGES (ETIQUETAS) --- */
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge.danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.info {
+  background-color: #e0f2fe;
+  color: #075985;
+}
+
+.badge.purple {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}

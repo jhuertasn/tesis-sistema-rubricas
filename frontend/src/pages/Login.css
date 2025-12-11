@@ -1,0 +1,148 @@
+/* src/pages/Login.css */
+
+/* --- Configuración Global --- */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+  /* Usamos un degradado similar al de tu Figma */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+}
+
+/* --- Contenedor Principal --- */
+/* src/pages/Login.css */
+
+/* src/pages/Login.css */
+
+/* --- FONDO GENERAL --- */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  /* Degradado moderno y profesional */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1.5rem;
+}
+
+/* --- CONTENEDOR PRINCIPAL (TARJETA) --- */
+.login-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 900px;
+  min-height: 550px;
+  background-color: white;
+  border-radius: 24px;
+  overflow: hidden;
+  /* Sombra profunda para dar efecto de "flotar" */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+/* --- LADO IZQUIERDO (BRANDING) --- */
+.login-branding {
+  flex: 1;
+  /* Un degradado sutilmente diferente o un color sólido con patrón */
+  background: #5D5FEF; 
+  color: white;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Círculos decorativos en el fondo del branding */
+.login-branding::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+.login-branding::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.logo-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.login-branding h1 { font-size: 2.5rem; margin: 0; font-weight: 800; letter-spacing: -0.5px; }
+.brand-tagline { font-size: 1.1rem; opacity: 0.9; margin-top: 1rem; margin-bottom: 2rem; line-height: 1.6; }
+
+.features-list { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 2rem; }
+.feature-item { display: flex; align-items: center; gap: 1rem; font-size: 0.95rem; opacity: 0.95; font-weight: 500; }
+.feature-icon { font-size: 1.2rem; background: rgba(255,255,255,0.2); padding: 8px; border-radius: 8px; }
+
+
+/* --- LADO DERECHO (LOGIN FORM) --- */
+.login-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background-color: #ffffff;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+}
+
+.form-card h2 { font-size: 1.8rem; color: #1a202c; margin-bottom: 0.5rem; font-weight: 700; }
+.subtitle { color: #718096; margin-bottom: 2.5rem; font-size: 0.95rem; }
+
+/* Botón Google Mejorado */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: #2d3748;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.google-btn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.google-icon-wrapper { margin-right: 12px; display: flex; align-items: center; }
+
+/* Separador */
+.divider { display: flex; align-items: center; text-align: center; margin-bottom: 2rem; color: #a0aec0; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; }
+.divider span { padding: 0 10px; }
+
+.terms-text { font-size: 0.75rem; color: #a0aec0; line-height: 1.5; margin-top: 1rem; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .login-wrapper { flex-direction: column; height: auto; min-height: auto; }
+  .login-branding { padding: 3rem 2rem; text-align: center; align-items: center; }
+  .features-list { display: none; }
+  .login-form-section { padding: 2rem; }
+}
