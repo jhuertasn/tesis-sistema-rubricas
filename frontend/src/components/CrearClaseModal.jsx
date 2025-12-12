@@ -78,7 +78,7 @@ function CrearClaseModal({ onClose, onClassSaved, teacherId, courseToEdit }) {
 					<input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
 
 					<label>Código de Clase</label>
-					<input type="text" value={codigo} onChange={(e) => setCodigo(e.target.value)} disabled={!!courseToEdit} placeholder="Automático si está vacío" />
+					<input type="text" value={codigo} onChange={(e) => setCodigo(e.target.value)} disabled={!!courseToEdit} placeholder="No puede estar vacío" />
 
 					<label>Periodo Académico</label>
 					<select value={periodo} onChange={(e) => setPeriodo(e.target.value)}>

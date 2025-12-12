@@ -1,74 +1,81 @@
 // src/pages/Login.jsx
-
-import React from 'react';
-import './Login.css'; // Importamos los estilos
-
-// Importamos los íconos
-import { FcGoogle } from 'react-icons/fc';
-import { FaChalkboardTeacher, FaUserGraduate } from 'react-icons/fa';
-import { FaGraduationCap } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { login } from '../services/api'; 
+import Swal from 'sweetalert2';
+import './Login.css';
 
 function Login() {
-  
-  // Esta es la URL de tu backend que inicia el login con Google
-  const GOOGLE_LOGIN_URL = '/oauth2/authorization/google';
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // URL de registro (por ahora, la mandamos al mismo login de Google)
-  const REGISTER_URL = '/oauth2/authorization/google';
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-return (
-    <div className="login-container">
-      <div className="login-wrapper">
+    // VALIDACIÓN PREVIA
+    if (!email.includes('@')) {
+       Swal.fire('Atención', 'El correo debe tener un @', 'warning');
+       return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await login({ email, password });
+      
+      // Guardar usuario en storage
+      localStorage.setItem('user', JSON.stringify(response.data));
+
+      // Redirigir según rol
+      const rol = response.data.rol;
+      if (rol === 'ADMINISTRADOR') navigate('/admin/users');
+      else if (rol === 'DOCENTE') navigate('/clases');
+      else navigate('/clases'); // Estudiantes
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'Credenciales incorrectas', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-icon">🔐</div>
         
-        {/* LADO IZQUIERDO: BRANDING */}
-        <div className="login-branding">
-          <div className="brand-content">
-            <div className="logo-icon">
-              <FaGraduationCap />
-            </div>
-            <h1>EvaluaApp</h1>
-            <p className="brand-tagline">
-              La plataforma integral para la gestión y evaluación académica moderna.
-            </p>
-            
-            <div className="features-list">
-              <div className="feature-item">
-                <FaChalkboardTeacher className="feature-icon" />
-                <span>Para Docentes: Crea clases y rúbricas en minutos.</span>
-              </div>
-              <div className="feature-item">
-                <FaUserGraduate className="feature-icon" />
-                <span>Para Estudiantes: Evaluaciones y feedback en tiempo real.</span>
-              </div>
-            </div>
+        <h2 style={{margin: '0 0 5px 0', color: '#111827'}}>Bienvenido a Evalua-App</h2>
+        <p style={{margin: '0 0 20px 0', color: '#6b7280', fontSize: '0.9rem'}}>
+          Inicia sesión para acceder a tu panel
+        </p>
+
+        <form onSubmit={handleLogin}>
+          <div className="input-group">
+            <label>Correo Electrónico</label>
+            <input 
+              type="email" className="input-field" placeholder="ej. tucorreo@ccf.com" required 
+              value={email} onChange={e => setEmail(e.target.value)} 
+            />
           </div>
-        </div>
 
-        {/* LADO DERECHO: LOGIN */}
-        <div className="login-form-section">
-          <div className="form-card">
-            <h2>¡Bienvenido!</h2>
-            <p className="subtitle">Inicia sesión para acceder a tu panel.</p>
-
-            <a href={GOOGLE_LOGIN_URL} className="google-btn">
-              <div className="google-icon-wrapper">
-                <FcGoogle size={24} />
-              </div>
-              <span className="btn-text">Continuar con Google</span>
-            </a>
-
-            <div className="divider">
-              <span>Acceso Seguro Institucional</span>
-            </div>
-
-            <p className="terms-text">
-              Al ingresar, aceptas nuestros Términos de Servicio y Política de Privacidad.
-              <br/>
-              <strong>Nota:</strong> Los nuevos usuarios se registrarán automáticamente como Estudiantes.
-            </p>
+          <div className="input-group">
+            <label>Contraseña</label>
+            <input 
+              type="password" className="input-field" placeholder="••••••••" required 
+              value={password} onChange={e => setPassword(e.target.value)} 
+            />
           </div>
-        </div>
 
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+          </button>
+        </form>
+
+        <div className="auth-link">
+          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+        </div>
       </div>
     </div>
   );

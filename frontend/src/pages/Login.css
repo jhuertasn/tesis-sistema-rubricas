@@ -146,3 +146,99 @@ body {
   .features-list { display: none; }
   .login-form-section { padding: 2rem; }
 }
+
+
+/* src/pages/Login.css */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  /* El degradado morado del Figma */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.auth-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.auth-icon {
+  background: #e0e7ff;
+  color: #4338ca;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 1rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+.input-group label span { color: #ef4444; } /* Asterisco rojo */
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.input-field:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.row-2-cols {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #5D5FEF; /* Tu color morado */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover { background: #4f46e5; }
+
+.auth-link {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+.auth-link a {
+  color: #5D5FEF;
+  text-decoration: none;
+  font-weight: 600;
+}

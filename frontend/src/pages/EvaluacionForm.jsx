@@ -19,23 +19,33 @@ function EvaluacionForm() {
   const [loading, setLoading] = useState(true);
   const [targetId, setTargetId] = useState(''); // ID de a quién evalúo
 
-  useEffect(() => {
+useEffect(() => {
     const loadQuizData = async () => {
       try {
-        const userRes = await apiClient.get('/api/users/me');
-        setUser(userRes.data);
+        // --- 1. CORRECCIÓN: USAR LOCALSTORAGE + ID (NO /me) ---
+        const localUser = JSON.parse(localStorage.getItem('user'));
+        
+        if (!localUser || !localUser.id) {
+            navigate('/');
+            return;
+        }
 
-        // 1. Pedimos la rúbrica/quiz al backend
-        // ¡Necesitamos crear este endpoint! (GET /api/courses/rubrics/{id})
+        // Pedimos datos frescos del usuario por ID
+        const userRes = await apiClient.get(`/api/users/${localUser.id}`);
+        setUser(userRes.data);
+        // -----------------------------------------------------
+
+        // 2. Pedimos la rúbrica/quiz al backend
         const rubricRes = await apiClient.get(`/api/courses/rubrics/${rubricId}`);
 
-        // El 'content' es un STRING, lo convertimos a un objeto JSON real
+        // El 'content' es un STRING JSON, lo parseamos
         const quizContent = JSON.parse(rubricRes.data.content);
         setQuiz(quizContent);
-        setRubricTitle(rubricRes.data.title || `Evaluación #${rubricId}`); // (Necesitamos añadir 'title' a la Rúbrica)
+        setRubricTitle(rubricRes.data.title || `Evaluación #${rubricId}`);
 
       } catch (error) {
         console.error("Error al cargar la evaluación:", error);
+        Swal.fire('Error', 'No se pudo cargar el examen.', 'error');
         navigate('/clases');
       } finally {
         setLoading(false);
@@ -82,6 +92,8 @@ const evaluationData = {
 if (loading) { 
   return <Loader />; 
 }
+if (!user) return null;
+
   return (
     <div className="dashboard-container">
       <Sidebar user={user} activePage="evaluaciones" />

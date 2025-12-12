@@ -1,6 +1,5 @@
 package com.rubricas.user_service.model;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +23,8 @@ public class User {
     private String rol;
 
     private String picture;
+
+    private boolean deleted = false;
 
     // --- Getters y Setters ---
     // (Lombok los generaría automáticamente, pero por ahora los ponemos manualmente
@@ -77,4 +78,11 @@ public class User {
         this.picture = picture;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }

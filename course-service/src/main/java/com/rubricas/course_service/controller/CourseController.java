@@ -49,7 +49,7 @@ public class CourseController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<?> createCourse(@RequestBody Course newCourse) {
-		
+
 		// 1. Validar si el código ya existe
 		if (newCourse.getCodigoClase() == null || newCourse.getCodigoClase().trim().isEmpty()) {
 			// Generar código único automático
@@ -67,7 +67,7 @@ public class CourseController {
 				return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe una clase con el código: " + codigo);
 			}
 			newCourse.setCodigoClase(codigo);
-		}		
+		}
 
 		// 2. Guardar el curso
 		Course savedCourse = courseRepository.save(newCourse);
@@ -314,15 +314,28 @@ public class CourseController {
 	@PostMapping("/enroll/code/{classCode}")
 	public ResponseEntity<?> enrollByCode(@PathVariable String classCode, @RequestParam Long studentId) {
 
-		// 1. Buscamos el curso por el código
+		// 1. Buscamos el curso
 		Course course = courseRepository.findByCodigoClase(classCode).orElse(null);
+		if (course == null)
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Clase no encontrada");
 
-		if (course == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body("No se encontró ninguna clase con el código: " + classCode);
+		// --- VALIDACIÓN DE CUPO (NUEVO) ---
+		// Contamos cuántos inscritos hay ya
+		List<Enrollment> currentEnrollments = enrollmentRepository.findByCourseId(course.getId());
+
+		// Si hay límite definido Y ya se alcanzó
+		if (course.getMaxEstudiantes() != null && currentEnrollments.size() >= course.getMaxEstudiantes()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body("La clase está llena. Cupo máximo: " + course.getMaxEstudiantes());
+		}
+		// ----------------------------------
+
+		// 2. Verificamos si ya está inscrito (ya lo tenías, pero asegúrate)
+		if (enrollmentRepository.existsByCourseIdAndStudentId(course.getId(), studentId)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya estás inscrito.");
 		}
 
-		// 2. Creamos la inscripción con el ID real del curso
+		// 3. Inscribimos
 		Enrollment newEnrollment = new Enrollment(course.getId(), studentId);
 		enrollmentRepository.save(newEnrollment);
 

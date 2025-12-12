@@ -1,51 +1,45 @@
-package com.rubricas.course_service.config; // ¡Asegúrate de que el paquete sea el correcto!
+package com.rubricas.course_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-// Imports de CORS
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Mantenemos la configuración de CORS (¡vital!)
+            // 1. Habilitamos CORS para que React pueda conectarse
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
+            // 2. Desactivamos CSRF (innecesario para esta API REST de tesis)
             .csrf(csrf -> csrf.disable())
-
-            // 2. ESTE ES EL CAMBIO: Permitimos todas las peticiones
-            .authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests
-                    .anyRequest().permitAll() // Permitimos todo, ya que el user-service es el portero
-            )
-
-            .oauth2Login(oauth2 -> oauth2.disable());
             
-            ;
-            // 3. Hemos quitado .oauth2Login() para evitar la redirección
-        
+            // 3. ¡PERMITIMOS TODO! 
+            // Asumimos que si el usuario llegó aquí, el Frontend ya validó su sesión.
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
+
         return http.build();
     }
 
-    // 4. Mantenemos el Bean de CORS (¡vital!)
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        // Permitimos el origen de tu Frontend (Vite)
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

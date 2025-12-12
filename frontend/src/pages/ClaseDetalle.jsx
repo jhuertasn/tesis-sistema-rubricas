@@ -5,8 +5,7 @@ import apiClient from '../services/api';
 import Sidebar from '../components/Sidebar.jsx';
 import './MisClases.css';
 import Loader from '../components/Loader.jsx';
-import Swal from 'sweetalert2'; // <-- 1. FALTABA IMPORTAR ESTO
-
+import Swal from 'sweetalert2'; 
 
 function ClaseDetalle() {
   const navigate = useNavigate();
@@ -17,19 +16,35 @@ function ClaseDetalle() {
   const [rubricas, setRubricas] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // Estado para el conteo de estudiantes (Opcional, si quieres mostrar cuántos van)
+  const [studentCount, setStudentCount] = useState(0); 
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
-      const userRes = await apiClient.get('/api/users/me');
+      // 1. CORRECCIÓN DEL ERROR 400: Usamos localStorage + ID
+      const localUser = JSON.parse(localStorage.getItem('user'));
+      if (!localUser || !localUser.id) {
+          navigate('/');
+          return;
+      }
+
+      // Pedimos usuario real
+      const userRes = await apiClient.get(`/api/users/${localUser.id}`);
       setUser(userRes.data);
 
+      // 2. Pedimos la clase
       const claseRes = await apiClient.get(`/api/courses/${id}`);
       setClase(claseRes.data);
       
+      // 3. Pedimos las rúbricas
       const rubricsRes = await apiClient.get(`/api/courses/${id}/rubrics`);
       setRubricas(rubricsRes.data);
+
+      // (Opcional) Podríamos pedir aquí la lista de inscritos para validar el cupo
+      // const enrolledRes = await apiClient.get(...) 
       
     } catch (error) {
       console.error("Error al cargar datos:", error);
@@ -75,36 +90,32 @@ function ClaseDetalle() {
     }
   };
 
-  // --- FUNCIÓN FALTANTE 1: Navegación del Docente ---
   const handleVerResultados = (rubricId) => {
     navigate(`/reportes/${rubricId}`);
   };
 
-// --- NUEVA FUNCIÓN: Eliminar Rúbrica ---
-const handleDeleteRubric = async (rubricId) => {
-  const result = await Swal.fire({
-    title: '¿Eliminar cuestionario?',
-    text: "Los estudiantes ya no podrán verlo.",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    confirmButtonText: 'Sí, eliminar'
-  });
+  const handleDeleteRubric = async (rubricId) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar cuestionario?',
+      text: "Los estudiantes ya no podrán verlo.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    });
 
-  if (result.isConfirmed) {
-    try {
-      await apiClient.delete(`/api/courses/rubrics/${rubricId}`);
-      Swal.fire('Eliminado', 'El cuestionario ha sido eliminado.', 'success');
-      loadData();
-    } catch (error) {
-      Swal.fire('Error', 'No se pudo eliminar.', 'error');
+    if (result.isConfirmed) {
+      try {
+        await apiClient.delete(`/api/courses/rubrics/${rubricId}`);
+        Swal.fire('Eliminado', 'El cuestionario ha sido eliminado.', 'success');
+        loadData();
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo eliminar.', 'error');
+      }
     }
-  }
-};
+  };
 
-  // --- FUNCIÓN FALTANTE 2: Navegación del Estudiante ---
   const handleStartEvaluation = (rubrica) => {
-    // Verificamos el tipo para saber a qué pantalla ir
     if (rubrica.type === 'COEVAL') {
         navigate(`/coevaluacion/${rubrica.id}`);
     } else {
@@ -112,11 +123,8 @@ const handleDeleteRubric = async (rubricId) => {
     }
   };
 
-if (loading) { 
-  return <Loader />; 
-}
-
-if (!user || !clase) { return null; }
+  if (loading) return <Loader />;
+  if (!user || !clase) return null;
 
   return (
     <div className="dashboard-container">
@@ -124,17 +132,27 @@ if (!user || !clase) { return null; }
 
       <main className="main-content">
         <div className="main-header">
-          <h2>{clase.name}</h2>
-          <span style={{color: '#666'}}>Código: {clase.codigoClase}</span>
+          <div>
+            <h2>{clase.name}</h2>
+            <div style={{display:'flex', gap:'15px', color: '#666', marginTop:'5px'}}>
+                <span>Código: <strong>{clase.codigoClase}</strong></span>
+                {/* AQUI MOSTRAMOS EL LÍMITE DE ESTUDIANTES */}
+                <span className="badge info">
+                    Cupos: {clase.maxEstudiantes || 'Ilimitado'}
+                </span>
+            </div>
+          </div>
         </div>
-        <p>{clase.descripcion || "Este curso no tiene descripción."}</p>
+
+        <p style={{fontSize:'1.1rem', color:'#444'}}>{clase.descripcion || "Sin descripción."}</p>
+        
         <hr style={{border: 'none', borderTop: '1px solid #eee', margin: '2rem 0'}} />
         
         {/* VISTA DOCENTE */}
         {(user.rol === 'DOCENTE' || user.rol === 'ADMINISTRADOR') && (
           <>
             <div className="rubrica-uploader class-card" style={{backgroundColor: '#fafafa', marginBottom: '2rem'}}>
-              <h3>Subir Cuestionario (Excel)</h3>
+              <h3>Subir Cuestionario (Excel) </h3>
               <p>Sube el archivo Excel (.xlsx) con el formato de preguntas.</p>
               <div className="upload-actions" style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
                 <input type="file" accept=".xlsx" onChange={handleFileChange} />
@@ -144,7 +162,7 @@ if (!user || !clase) { return null; }
               </div>
             </div>
 
-<h3>Cuestionarios Publicados</h3>
+            <h3>Cuestionarios Publicados</h3>
             <div className="evaluaciones-lista">
               {rubricas.length === 0 ? <p>No has subido cuestionarios.</p> : rubricas.map(rubrica => (
                 <div className="class-card" key={rubrica.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -154,7 +172,6 @@ if (!user || !clase) { return null; }
                   </div>
                   
                   <div style={{display: 'flex', gap: '10px'}}>
-                    {/* Botón Ver Resultados (Existente) */}
                     <button 
                       className="button-secondary" 
                       style={{background: '#667eea', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '600'}}
@@ -163,9 +180,8 @@ if (!user || !clase) { return null; }
                       Ver Resultados 📊
                     </button>
 
-                    {/* --- NUEVO BOTÓN ELIMINAR --- */}
                     <button 
-                        className="button-delete" // Usamos el estilo rojo que creamos para clases
+                        className="button-delete" 
                         style={{background: '#ffebee', color: '#d32f2f', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', cursor: 'pointer', fontWeight: '600'}}
                         onClick={() => handleDeleteRubric(rubrica.id)}
                     >
@@ -193,7 +209,6 @@ if (!user || !clase) { return null; }
                   </div>
                   <button 
                     className="button-primary" 
-                    // AQUÍ ESTABA EL ERROR: Pasamos el OBJETO entero 'rubrica', no solo el ID
                     onClick={() => handleStartEvaluation(rubrica)} 
                   >
                     Iniciar Evaluación

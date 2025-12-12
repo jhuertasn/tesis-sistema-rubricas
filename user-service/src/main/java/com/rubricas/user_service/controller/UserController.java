@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -21,7 +22,9 @@ public class UserController {
     // Listar todos (Para el panel de Admin)
     @GetMapping
     public List<User> getAllUsers() {
-        return userService.getAllUsers();
+        return userService.getAllUsers().stream()
+                .filter(u -> !u.isDeleted()) // FILTRO CLAVE
+                .collect(Collectors.toList());
     }
 
     // Obtener uno por ID
@@ -30,7 +33,7 @@ public class UserController {
         User user = userService.getUserById(id);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
-    
+
     // Obtener info del usuario logueado (por email)
     @GetMapping("/search")
     public ResponseEntity<User> getUserByEmail(@RequestParam String email) {
@@ -55,5 +58,16 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint para que el propio usuario actualice sus datos
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+        try {
+            User updatedUser = userService.updateUser(id, userDetails);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

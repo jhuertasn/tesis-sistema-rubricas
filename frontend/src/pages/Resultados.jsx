@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/api';
 import Sidebar from '../components/Sidebar.jsx';
-import './MisClases.css';
+import './MisClases.css'; // Reusamos estilos de tarjetas
 import { FaTrophy, FaClipboardCheck, FaChartLine } from 'react-icons/fa';
 import Loader from '../components/Loader.jsx';
 
 const styles = {
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '2rem', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0, 0.05)' },
-    th: { textAlign: 'left', padding: '1rem', borderBottom: '2px solid #f0f0f0', backgroundColor: '#f9f9f9' },
-    td: { textAlign: 'left', padding: '1rem', borderBottom: '1px solid #ddd' },
+    table: { width: '100%', borderCollapse: 'collapse', marginTop: '2rem', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0, 0.05)', overflow: 'hidden' },
+    th: { textAlign: 'left', padding: '1rem', borderBottom: '2px solid #f0f0f0', backgroundColor: '#f9f9f9', color: '#555' },
+    td: { textAlign: 'left', padding: '1rem', borderBottom: '1px solid #eee' },
     scoreBad: { color: '#d9534f', fontWeight: 'bold' },
     scoreGood: { color: '#00C49A', fontWeight: 'bold' },
-    scoreNeutral: { color: '#5D5FEF', fontWeight: 'bold' } // Nuevo estilo para coevaluación
+    scoreNeutral: { color: '#5D5FEF', fontWeight: 'bold' } 
 };
 
 function Resultados() {
@@ -29,20 +29,23 @@ function Resultados() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const userRes = await apiClient.get('/api/users/me');
+                // 1. Sincronización robusta (Igual que en MisClases)
+                const localUser = JSON.parse(localStorage.getItem('user'));
+                if (!localUser) { navigate('/'); return; }
+
+                // Pedimos datos frescos del usuario
+                const userRes = await apiClient.get(`/api/users/${localUser.id}`);
                 setUser(userRes.data);
 
-                const evalRes = await apiClient.get(`/api/evaluations/student/${userRes.data.id}`);
+                // 2. Pedimos las evaluaciones
+                const evalRes = await apiClient.get(`/api/evaluations/student/${localUser.id}`);
                 const data = evalRes.data;
                 setEvaluaciones(data);
 
-                // --- LÓGICA DE CÁLCULO CORREGIDA ---
-
-                // 1. Filtramos: Solo nos interesan los EXÁMENES para el promedio.
-                // Ignoramos las que tengan "Coevaluación" en el título.
-                // --- CÁLCULO SEGURO ---
-                const examenesReales = data.filter(ev =>
-                    ev.rubricTitle &&
+                // --- LÓGICA DE ESTADÍSTICAS ---
+                // Filtramos para que el promedio sea solo de EXÁMENES reales (no coevaluaciones)
+                const examenesReales = data.filter(ev => 
+                    ev.rubricTitle && 
                     !ev.rubricTitle.toLowerCase().includes("coevaluación") &&
                     !ev.rubricTitle.toLowerCase().includes("coevaluacion")
                 );
@@ -54,17 +57,17 @@ function Resultados() {
                     const prom = totalPuntos / examenesReales.length;
                     setPromedio(prom.toFixed(1));
 
-                    const aprob = examenesReales.filter(ev => (ev.score || 0) >= 60).length;
+                    // Consideramos aprobado nota >= 13 (Estándar académico común, ajusta si es 60)
+                    const aprob = examenesReales.filter(ev => (ev.score || 0) >= 13).length;
                     setAprobadas(aprob);
                 } else {
                     setPromedio("0.0");
                     setAprobadas(0);
                 }
-                // -----------------------------------
 
             } catch (error) {
                 console.error("Error al cargar datos:", error);
-                navigate('/');
+                // Si falla la carga, no lo sacamos inmediatamente, solo mostramos vacío
             } finally {
                 setLoading(false);
             }
@@ -72,9 +75,7 @@ function Resultados() {
         loadData();
     }, [navigate]);
 
-    if (loading) {
-        return <Loader />;
-    }
+    if (loading) return <Loader />;
     if (!user) return null;
 
     return (
@@ -83,7 +84,7 @@ function Resultados() {
 
             <main className="main-content">
                 <div className="main-header">
-                    <h2>Mis Notas</h2>
+                    <h2>Mis Notas y Resultados</h2>
                 </div>
 
                 {/* --- TARJETAS DE RESUMEN (STATS) --- */}
@@ -94,7 +95,6 @@ function Resultados() {
                         </div>
                         <div className="stat-info">
                             <h3>{promedio}</h3>
-                            {/* Aclaramos que es promedio de EXÁMENES */}
                             <span>Promedio (Exámenes)</span>
                         </div>
                     </div>
@@ -114,50 +114,53 @@ function Resultados() {
                             <FaClipboardCheck />
                         </div>
                         <div className="stat-info">
-                            {/* Aquí mostramos el total de TODO (incluyendo coevaluaciones) */}
                             <h3>{evaluaciones.length}</h3>
                             <span>Actividades Totales</span>
                         </div>
                     </div>
                 </div>
 
-                {/* --- TABLA --- */}
+                {/* --- TABLA DE RESULTADOS --- */}
                 <div className="table-container">
-                    <table className="styled-table">
+                    <table style={styles.table}>
                         <thead>
                             <tr>
-                                <th>Curso / Actividad</th>
-                                <th>Tipo</th>
-                                <th>Nota / Estado</th>
-                                <th>Resultado</th>
+                                <th style={styles.th}>Curso / Actividad</th>
+                                <th style={styles.th}>Tipo</th>
+                                <th style={styles.th}>Nota / Estado</th>
+                                <th style={styles.th}>Resultado</th>
                             </tr>
                         </thead>
                         <tbody>
                             {evaluaciones.map((ev) => {
-                                const esCoevaluacion = ev.rubricTitle.toLowerCase().includes("coevaluación");
+                                const esCoevaluacion = ev.rubricTitle.toLowerCase().includes("coevaluación") || ev.rubricTitle.toLowerCase().includes("coevaluacion");
                                 const nota = typeof ev.score === 'number' ? ev.score : 0;
-                                const esAprobado = nota >= 13;
+                                // Ajusta aquí la nota mínima aprobatoria (ej. 13 o 60)
+                                const esAprobado = nota >= 13; 
 
                                 return (
                                     <tr key={ev.id}>
-                                        <td>
-                                            <div style={{ fontWeight: 'bold' }}>{ev.courseName}</div>
-                                            <div style={{ fontSize: '0.85rem', color: '#666' }}>{ev.rubricTitle}</div>
+                                        <td style={styles.td}>
+                                            <div style={{ fontWeight: 'bold', color: '#333' }}>{ev.courseName}</div>
+                                            <div style={{ fontSize: '0.85rem', color: '#888' }}>{ev.rubricTitle}</div>
                                         </td>
-                                        <td>
+                                        <td style={styles.td}>
                                             {esCoevaluacion
                                                 ? <span className="badge info">Grupal</span>
                                                 : <span className="badge purple">Individual</span>}
                                         </td>
-                                        <td style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                            {/* CAMBIO VISUAL: Si es coevaluación, mostramos "Completado" en vez de nota */}
+                                        <td style={styles.td}>
                                             {esCoevaluacion ? (
-                                                <span style={{ fontSize: '0.9rem', color: '#555' }}>Participación Registrada</span>
+                                                <span style={{ fontSize: '0.9rem', color: '#555', fontStyle:'italic' }}>
+                                                    Participación Registrada
+                                                </span>
                                             ) : (
-                                                nota.toFixed(2)
+                                                <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                                                    {nota.toFixed(2)}
+                                                </span>
                                             )}
                                         </td>
-                                        <td>
+                                        <td style={styles.td}>
                                             {esCoevaluacion ? (
                                                 <span className="badge success">Enviado</span>
                                             ) : (
@@ -174,9 +177,10 @@ function Resultados() {
                 </div>
 
                 {evaluaciones.length === 0 && (
-                    <p style={{ textAlign: 'center', marginTop: '2rem', color: '#888' }}>
-                        Aún no tienes notas registradas.
-                    </p>
+                    <div className="empty-state">
+                        <h3>No tienes notas aún</h3>
+                        <p>Cuando completes exámenes o coevaluaciones, aparecerán aquí.</p>
+                    </div>
                 )}
             </main>
         </div>

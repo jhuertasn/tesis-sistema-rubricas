@@ -32,11 +32,12 @@ public class UserService {
         user.setEmail(req.getEmail());
         // Encriptamos la contraseña
         user.setPassword(passwordEncoder.encode(req.getPassword()));
-        
+
         // Manejo de roles (Por defecto ESTUDIANTE si no se envía nada)
-        String rolAsignado = req.getRol() != null && !req.getRol().isEmpty() ? req.getRol().toUpperCase() : "ESTUDIANTE";
+        String rolAsignado = req.getRol() != null && !req.getRol().isEmpty() ? req.getRol().toUpperCase()
+                : "ESTUDIANTE";
         user.setRol(rolAsignado);
-        
+
         // Generar avatar por defecto
         user.setPicture("https://ui-avatars.com/api/?background=random&name=" + req.getNombre().replace(" ", "+"));
 
@@ -58,14 +59,18 @@ public class UserService {
 
     // --- GESTIÓN DE USUARIOS (CRUD) ---
 
+    // Modificar getAllUsers para que NO traiga los borrados
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        // Filtramos en memoria (o podrías hacerlo con query en repositorio)
+        return userRepository.findAll().stream()
+                .filter(u -> !u.isDeleted())
+                .toList();
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
-    
+
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
@@ -73,12 +78,43 @@ public class UserService {
     public User updateUserRole(Long userId, String newRole) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        
+
         user.setRol(newRole.toUpperCase());
         return userRepository.save(user);
     }
-    
+
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setDeleted(true); // Soft Delete
+            userRepository.save(user);
+        }
     }
+
+    // ---Actualizar Perfil ---
+    public User updateUser(Long id, User userDetails) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Actualizamos nombre si viene
+        if (userDetails.getNombre() != null && !userDetails.getNombre().isEmpty()) {
+            user.setNombre(userDetails.getNombre());
+            // Actualizamos también el avatar por si cambió el nombre
+            user.setPicture(
+                    "https://ui-avatars.com/api/?background=random&name=" + userDetails.getNombre().replace(" ", "+"));
+        }
+
+        // Actualizamos email si viene (Opcional, a veces es mejor no permitirlo)
+        if (userDetails.getEmail() != null && !userDetails.getEmail().isEmpty()) {
+            user.setEmail(userDetails.getEmail());
+        }
+
+        // Actualizamos contraseña SOLO si el usuario escribió una nueva
+        if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+        }
+
+        return userRepository.save(user);
+    }
+
 }

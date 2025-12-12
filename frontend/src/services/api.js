@@ -1,12 +1,32 @@
-// src/services/api.js
 import axios from 'axios';
 
-// ¡Ya no necesitamos 3 clientes!
-// Creamos UN solo cliente que apunta a nuestro propio servidor (el proxy)
+// Definimos dónde vive cada servicio
+const SERVICES = {
+  USER: 'http://localhost:8081',
+  COURSE: 'http://localhost:8082',
+  EVALUATION: 'http://localhost:8083'
+};
+
 const apiClient = axios.create({
-  baseURL: '/', // Apunta a la raíz de nuestro sitio (http://localhost:5173)
-  withCredentials: true, 
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true
 });
 
-// Simplemente exportamos este cliente único
+// --- INTERCEPTOR INTELIGENTE ---
+// Antes de que salga la petición, decidimos a qué puerto ir según la URL
+apiClient.interceptors.request.use((config) => {
+  if (config.url.startsWith('/auth') || config.url.startsWith('/api/users')) {
+    config.baseURL = SERVICES.USER;
+  } else if (config.url.startsWith('/api/courses') || config.url.startsWith('/api/enrollments')) {
+    config.baseURL = SERVICES.COURSE;
+  } else if (config.url.startsWith('/api/evaluations') || config.url.startsWith('/api/rubrics')) {
+    config.baseURL = SERVICES.EVALUATION;
+  }
+  return config;
+}, (error) => Promise.reject(error));
+
+// --- FUNCIONES EXPORTADAS ---
+export const login = (creds) => apiClient.post('/auth/login', creds);
+export const register = (data) => apiClient.post('/auth/register', data);
+
 export default apiClient;

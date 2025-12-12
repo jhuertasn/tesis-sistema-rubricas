@@ -26,17 +26,29 @@ function Reportes() {
   const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     const loadData = async () => {
       try {
-        const userRes = await apiClient.get('/api/users/me');
+        // --- 1. CORRECCIÓN: USAR ID LOCALSTORAGE ---
+        const localUser = JSON.parse(localStorage.getItem('user'));
+        
+        if (!localUser || !localUser.id) {
+            navigate('/');
+            return;
+        }
+
+        // Pedimos datos frescos del usuario por ID
+        const userRes = await apiClient.get(`/api/users/${localUser.id}`);
         setUser(userRes.data);
 
+        // Seguridad: Si es estudiante, lo sacamos
         if (userRes.data.rol === 'ESTUDIANTE') {
           navigate('/clases');
           return;
         }
+        // ------------------------------------------
 
+        // 2. Cargar evaluaciones de la rúbrica
         const evalRes = await apiClient.get(`/api/evaluations/rubric/${rubricId}`);
         setEvaluaciones(evalRes.data);
         
