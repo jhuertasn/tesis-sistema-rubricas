@@ -5,6 +5,10 @@ import { login } from '../services/api';
 import Swal from 'sweetalert2';
 import './Login.css';
 
+// 1. IMPORTAMOS LA IMAGEN
+// Asegúrate que el nombre del archivo coincida
+import logoCCF from '../assets/logoIESTPCCF2024.png'; 
+
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -14,7 +18,6 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // VALIDACIÓN PREVIA
     if (!email.includes('@')) {
        Swal.fire('Atención', 'El correo debe tener un @', 'warning');
        return;
@@ -24,14 +27,12 @@ function Login() {
     try {
       const response = await login({ email, password });
       
-      // Guardar usuario en storage
       localStorage.setItem('user', JSON.stringify(response.data));
 
-      // Redirigir según rol
       const rol = response.data.rol;
       if (rol === 'ADMINISTRADOR') navigate('/admin/users');
       else if (rol === 'DOCENTE') navigate('/clases');
-      else navigate('/clases'); // Estudiantes
+      else navigate('/clases'); 
 
     } catch (error) {
       console.error(error);
@@ -44,9 +45,17 @@ function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-icon">🔐</div>
         
-        <h2 style={{margin: '0 0 5px 0', color: '#111827'}}>Bienvenido a Evalua-App</h2>
+        {/* 2. AQUÍ REEMPLAZAMOS EL ÍCONO POR EL LOGO */}
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <img 
+                src={logoCCF} 
+                alt="Logo IESTP Carlos Cueto Fernandini" 
+                style={{ width: '120px', height: 'auto', display: 'block', margin: '0 auto' }} 
+            />
+        </div>
+        
+        <h2 style={{margin: '0 0 5px 0', color: '#111827'}}>Bienvenido a EvalSpace</h2>
         <p style={{margin: '0 0 20px 0', color: '#6b7280', fontSize: '0.9rem'}}>
           Inicia sesión para acceder a tu panel
         </p>

@@ -37,8 +37,8 @@ function Sidebar({ activePage }) {
   return (
     <nav className="sidebar">
       <div className="sidebar-header">
-        <span className="logo">EvaluaApp</span>
-        <span style={{ fontSize: '0.7rem', color: '#888', display: 'block' }}>Versión Tesis Local</span>
+        <span className="logo">EvalSpace</span>
+        <span style={{ fontSize: '0.7rem', color: '#888', display: 'block' }}>Versión 1.1 en Local</span>
       </div>
 
       <div className="user-profile">
