@@ -39,15 +39,25 @@ public class EvaluationController {
     @ResponseStatus(HttpStatus.CREATED)
     public Evaluation submitEvaluation(@RequestBody Evaluation evaluation) {
         System.out.println("--- Nueva Evaluación Recibida ---");
-        
+
         try {
-            // Calculamos la nota usando el servicio de cálculo
+            // 1. Calculamos la nota usando el servicio de cálculo
             double score = resultCalculationService.calculateScore(evaluation);
-            evaluation.setScore(score); 
+            evaluation.setScore(score);
             System.out.println("--- Nota Calculada: " + score + " ---");
+
+            // 2. APLICAMOS LA REGLA DE NEGOCIO (ESTO FALTABA)
+            // Si la nota es 60 o más, APROBADO. Si no, REPROBADO.
+            if (score >= 60.0) {
+                evaluation.setStatus("APROBADO");
+            } else {
+                evaluation.setStatus("REPROBADO");
+            }
+
         } catch (Exception e) {
             System.err.println("No se pudo calcular la nota: " + e.getMessage());
-            evaluation.setScore(0.0); // Nota 0 si falla
+            evaluation.setScore(0.0); // Nota 0 si falla el cálculo
+            evaluation.setStatus("REPROBADO"); // Y reprueba por defecto
         }
 
         return evaluationRepository.save(evaluation);
@@ -72,7 +82,7 @@ public class EvaluationController {
                 // 1. Obtener datos de la Rúbrica desde course-service
                 String rubricJsonStr = restTemplate.getForObject(rubricUrlBase + ev.getRubricId(), String.class);
                 JsonNode rubricObj = mapper.readTree(rubricJsonStr);
-                
+
                 String type = rubricObj.has("type") ? rubricObj.get("type").asText() : "Examen";
                 String title = type.equals("COEVAL") ? "Ficha de Coevaluación" : "Cuestionario / Examen";
                 Long courseId = rubricObj.get("courseId").asLong();
@@ -95,7 +105,8 @@ public class EvaluationController {
     }
 
     /**
-     * Endpoint para REPORTE DOCENTE (Ver notas de todos los alumnos en una rúbrica).
+     * Endpoint para REPORTE DOCENTE (Ver notas de todos los alumnos en una
+     * rúbrica).
      */
     @GetMapping("/rubric/{rubricId}")
     public ResponseEntity<List<ReporteDTO>> getResultsForRubric(@PathVariable Long rubricId) {

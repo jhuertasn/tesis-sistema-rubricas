@@ -136,7 +136,7 @@ function Resultados() {
                                 const esCoevaluacion = ev.rubricTitle.toLowerCase().includes("coevaluación") || ev.rubricTitle.toLowerCase().includes("coevaluacion");
                                 const nota = typeof ev.score === 'number' ? ev.score : 0;
                                 // Ajusta aquí la nota mínima aprobatoria (ej. 13 o 60)
-                                const esAprobado = nota >= 13; 
+                                const esAprobado = nota >= 60; 
 
                                 return (
                                     <tr key={ev.id}>

@@ -23,6 +23,7 @@ public class Evaluation {
     @Column(columnDefinition = "TEXT")
     private String results; // Las respuestas en formato JSON
 
+    private String status; // El estado de la evaluación (APROBADO/REPROBADO)
     private Double score; // La nota calculada
 
     // --- Getters y Setters ---
@@ -73,5 +74,13 @@ public class Evaluation {
 
     public void setScore(Double score) {
         this.score = score;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
